@@ -40,16 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function handleFile(file) {
+    async function handleFile(file) {
         console.log(`File selected: ${file.name}`);
         loadingIndicator.style.display = 'block';
         controls.style.display = 'none';
         mapContainer.style.display = 'none';
 
+        const progressBar = document.getElementById('progress-bar');
+        progressBar.style.width = '0%';
+
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
-                processedData = parseSonarFile(e.target.result, file.name);
+                            const onProgress = (percent) => {
+                                requestAnimationFrame(() => {
+                                    progressBar.style.width = `${percent}%`;
+                                });
+                            };                processedData = await parseSonarFile(e.target.result, file.name, onProgress);
                 console.log(`Successfully parsed ${processedData.length} data points.`);
                 displayData();
             } catch (error) {
@@ -68,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Sonar Parsing Logic ---
-    function parseSonarFile(arrayBuffer, fileName) {
+    async function parseSonarFile(arrayBuffer, fileName, onProgress) {
         const view = new DataView(arrayBuffer);
         const extension = fileName.split('.').pop().toLowerCase();
         const isSl3 = extension === 'sl3';
@@ -87,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get start time from the first frame's hardware_time, which is used as a base for all timestamps
         const firstFrameHardWareTimeOffset = isSl3 ? 40 : 60;
         const startTime = view.getUint32(position + firstFrameHardWareTimeOffset, true);
+
+        let frameCounter = 0;
+        const framesPerYield = 1000; // Yield to event loop every 1000 frames
 
         while (position < arrayBuffer.byteLength) {
             const frameHeaderSize = isSl3 ? 168 : 144;
@@ -109,8 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             position += frameSize;
+
+            // Progress reporting and yielding
+            frameCounter++;
+            if (frameCounter % framesPerYield === 0) {
+                onProgress((position / arrayBuffer.byteLength) * 100);
+                await new Promise(resolve => setTimeout(resolve, 0)); // Yield control
+            }
         }
 
+        onProgress(100); // Final update
         return data;
     }
 
@@ -209,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             map = L.map('map', { preferCanvas: true }).setView([processedData[0].latitude, processedData[0].longitude], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 20
+                maxZoom: 21
             }).addTo(map);
 
             legend = L.control({position: 'bottomright'});
@@ -294,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         processedData.forEach(point => {
             const marker = L.circleMarker([point.latitude, point.longitude], {
-                radius: 5,
+                radius: 3,
                 fillColor: colorScale(point[colorAttribute]),
                 color: colorScale(point[colorAttribute]),
                 weight: 0.5,

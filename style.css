@@ -48,6 +48,25 @@ h1 {
     color: #0056b3;
 }
 
+#loading-indicator p {
+    margin-bottom: 10px;
+}
+
+#progress-bar-container {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 20px;
+    background-color: #007bff;
+    transition: width 0.1s linear;
+}
+
 #controls {
     display: flex;
     justify-content: center;
