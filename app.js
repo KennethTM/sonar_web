@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mapContainer.style.display = 'block';
 
         if (!map) {
-            map = L.map('map').setView([processedData[0].latitude, processedData[0].longitude], 15);
+            map = L.map('map', { preferCanvas: true }).setView([processedData[0].latitude, processedData[0].longitude], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 20
