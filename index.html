@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonar Data Viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <h1>Sonar Data Viewer</h1>
+        <div id="upload-area">
+            <div id="drop-zone">
+                <p>Drag & drop a .sl2 or .sl3 file here, or click to select a file.</p>
+                <input type="file" id="file-input" accept=".sl2,.sl3" style="display: none;">
+            </div>
+        </div>
+        <div id="loading-indicator" style="display: none;">
+            <p>Processing file...</p>
+        </div>
+        <div id="controls" style="display: none;">
+            <label for="color-select">Color points by:</label>
+            <select id="color-select">
+                <option value="water_depth">Water Depth</option>
+                <option value="bottom_density_1">Bottom Density (1px)</option>
+                <option value="bottom_density_10">Bottom Density (10px avg)</option>
+                <option value="bottom_density_100">Bottom Density (100px avg)</option>
+            </select>
+            <button id="download-csv">Download CSV</button>
+        </div>
+        <div id="map"></div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+</html>
